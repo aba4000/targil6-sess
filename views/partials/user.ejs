@@ -1,0 +1,12 @@
+<tr>
+    <td><%= username %></td>
+     <% if (admin) { %>
+       <td><%= password %></td>
+       <td class="text-center"><%= useradmin ? "X" : ""%></td>
+    <% } %>
+    <td><%= name %></td>
+    <% if (admin) { %>
+    <td class="text-center" onclick="remove('<%= username %>');"><i class="glyphicon glyphicon-trash"></i></td>
+    <% } %>
+
+</tr>

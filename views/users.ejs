@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head', {title: title}) %>
+    <script>
+        function remove(user) {
+            <% if (admin) { %>
+            if(confirm("Do you really want to delete user '" + user + "'?"))
+                location = "/users/delete/" + user;
+            <% } %>
+        }
+
+    </script>
+</head>
+<body>
+<%- include('partials/header', {header: 'Users'}) %>
+<table class="table table-hover">
+    <thead class="thead-inverse">
+    <tr>
+        <th>User</th>
+        <% if (admin) { %>
+        <th>Password</th>
+        <th class="text-center">Admin</th>
+        <% } %>
+        <th>Name</th>
+        <% if (admin) { %>
+        <th class="text-center"></th>
+        <% } %>
+    </tr>
+    </thead>
+    <tbody>
+    <% users.forEach(function(user, index) { %>
+    <%- include('partials/user', {
+    admin: admin,
+    username: user.username,
+    name: user.name,
+    password: user.password,
+    useradmin: user.admin
+    } ) %>
+    <% }) %>
+    </tbody>
+</table>
+<p>
+    <button onclick="location = '/users/add'">Add user</button>
+</p>
+<p>
+    <button onclick="location = '/logout'">Logout</button>
+</p>
+<p>
+    <button onclick="location = '/'">Home</button>
+</p>
+</body>
+</html>
