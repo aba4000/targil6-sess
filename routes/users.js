@@ -6,7 +6,7 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/', function (req, res, next) {
     debug('requested');
-    if (req.session.userId === undefined) {
+    if (!req.user) {
         res.redirect('/login');
         return;
     }
@@ -14,47 +14,47 @@ router.get('/', function (req, res, next) {
         if (err)
             debug("get users failure: " + err);
         else
-            res.render('users', {title: 'User List', admin: req.session.admin, users: users});
+            res.render('users', {title: 'User List', admin: req.user.admin, users: users});
     });
 });
 
 router.get('/add', function (req, res, next) {
     debug('requested');
-    if (req.session.userId === undefined) {
+    if (!req.user) {
         res.redirect('/login');
         return;
     }
-    if (!req.session.admin) {
+    if (!req.user.admin) {
         debug("Must be admin to add a user!!!");
         res.redirect('/users');
         return;
     }
-    res.render('adduser', {title: 'Add user', admin: req.session.admin});
+    res.render('adduser', {title: 'Add user', admin: req.user.admin });
 });
 
 router.post('/add', function (req, res, next) {
     debug('requested');
-    if (req.session.userId === undefined) {
+    if (!req.user) {
         res.redirect('/login');
         return;
     }
-    if (!req.session.admin) {
+    if (!req.user.admin) {
         debug("Must be admin to add a user!!!");
         res.redirect('/users');
         return;
     }
     if (req.body.user === undefined || req.body.user === null || req.body.user === "") {
-        debug("Must be admin to add a user!!!");
+        debug("Username cannot be empty!!!");
         res.redirect('/users');
         return;
     }
     if (req.body.password === undefined || req.body.password === null || req.body.password === "") {
-        debug("Must be admin to add a user!!!");
+        debug("Password cannot be empty!!!");
         res.redirect('/users');
         return;
     }
     if (req.body.name === undefined || req.body.name === null || req.body.name === "") {
-        debug("Must be admin to add a user!!!");
+        debug("Name cannot be empty!!!");
         res.redirect('/users');
         return;
     }
@@ -83,17 +83,15 @@ router.post('/add', function (req, res, next) {
             res.redirect('/users');
         });
     });
-
-
 });
 
 router.get('/delete/:name', function (req, res, next) {
     debug('delete');
-    if (req.session.userId === undefined) {
+    if (!req.user) {
         res.redirect('/login');
         return;
     }
-    if (!req.session.admin || req.params.name === 'moishe') {
+    if (!req.user.admin || req.params.name === 'dzilbers') {
         debug("Must be admin to delete a user or can't delete THE ADMIN!!!");
         res.redirect('/users');
         return;

@@ -8,6 +8,42 @@ var session = require('express-session');
 var mongoose = require('mongoose');
 var connectMongo = require('connect-mongo');
 var debug = require('debug')('sess:app');
+var flash = require('connect-flash');
+var User = require('./models/user');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy(
+    function(username, password, done) {
+        User.findOne({username: username}, function (error, user) {
+            if (error) {
+                debug("Login error: " + error);
+                return done(error);
+            }
+            if (!user) {
+                debug("Login no user: " + error);
+                return done(null, false, { message: "User '" + username + "' doesn't exist" });
+            }
+            if (user.password !== password) {
+                debug("Login wrong password: " + password + "/" + user.password);
+                return done(null, false, { message: "Wrong password for '" + username + "'" });
+            }
+
+            debug("Logged to: " + username);
+            return done(null, user);
+        });
+    }
+));
+
+passport.serializeUser(function(user, done) {
+    done(null, user._id);
+});
+
+passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+        done(err, user);
+    });
+});
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -33,9 +69,12 @@ sessionConnect.open(sessConnStr);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
     name: 'myapp.sid',
     secret: "my special secret",
@@ -45,10 +84,9 @@ app.use(session({
     store: new MongoStore({ mongooseConnection: sessionConnect }),
     cookie: { maxAge: 900000, httpOnly: true, sameSite: true }
 }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', routes);
 app.use('/users', users);

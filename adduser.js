@@ -1,8 +1,8 @@
 var User = require('./models/user');
 
 User.create({
-    name: 'Moishe Ufnik',
-    username: 'moishe',
+    name: 'Dan Zilberstein',
+    username: 'dzilbers',
     password: '123',
     admin: true
 }, function(err, user) {

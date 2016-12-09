@@ -5,7 +5,7 @@ var debug = require('debug')('sess:index');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   debug('requested');
-  if (req.session.userId === undefined) {
+  if (!req.user) {
     res.redirect('/login');
     return;
   }
@@ -13,11 +13,12 @@ router.get('/', function(req, res, next) {
     req.session.count = 1;
   else
     req.session.count++;
-  res.render('index', { title: 'Express', count: req.session.count , userName: req.session.userName })
+  res.render('index', { title: 'Express', count: req.session.count , userName: req.user.username });
 });
 
 router.get('/logout', function(req, res, next) {
     debug('logging out');
+    req.logout();
     req.session.regenerate(function(err) {
         debug('logged out');
         res.redirect('/');
