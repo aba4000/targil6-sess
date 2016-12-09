@@ -55,7 +55,16 @@
         function bad() {
             <% if (problem !== undefined) { %>alert("<%- problem %>") <% } %>
         }
-
+        function calcHashedLogin()
+        {
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var random = "<%- random %>";
+            var hash = CryptoJS.SHA1(username + ':' + password + ':' + random);
+            var hash_Base64 = hash.toString(CryptoJS.enc.Base64);
+            $("#hashedLogin").val(hash_Base64);
+            return true;
+        }
     </script>
 </head>
 <body onload='bad()'>
@@ -64,16 +73,16 @@
     <div class="row">
         <div class="Absolute-Center is-Responsive">
             <div class="col-sm-12 col-md-10 col-md-offset-1">
-                <form method="POST" id="loginForm">
+                <form method="POST" id="loginForm" onsubmit="calcHashedLogin()">
                     <div class="form-group input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                        <input class="form-control" type="text" name='username' placeholder="Enter Username" required/>
+                        <input class="form-control" type="text" id="username" name='username' placeholder="Enter Username" required/>
                     </div>
                     <div class="form-group input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                        <input class="form-control" type="password" name='password' placeholder="Enter Password"
-                               required/>
+                        <input class="form-control" type="password" id="password" placeholder="Enter Password" required/>
                     </div>
+                    <input type="hidden" id="hashedLogin" name="hashedLogin"/>
                     <div class="form-group">
                         <button type="submit" class="btn btn-def btn-block">Login</button>
                     </div>

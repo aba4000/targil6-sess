@@ -14,7 +14,8 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy(
-    function(username, password, done) {
+    { usernameField: 'username', passwordField: 'hashedLogin'},
+    function(username, hashedLogin, done) {
         User.findOne({username: username}, function (error, user) {
             if (error) {
                 debug("Login error: " + error);
@@ -24,12 +25,9 @@ passport.use(new LocalStrategy(
                 debug("Login no user: " + error);
                 return done(null, false, { message: "User '" + username + "' doesn't exist" });
             }
-            if (user.password !== password) {
-                debug("Login wrong password: " + password + "/" + user.password);
-                return done(null, false, { message: "Wrong password for '" + username + "'" });
-            }
 
-            debug("Logged to: " + username);
+            //password cannot be checked here since we need the random number from the session.
+            //the authentication continues in /login post (login.js)
             return done(null, user);
         });
     }
