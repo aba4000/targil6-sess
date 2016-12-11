@@ -20,22 +20,39 @@
             padding: 40px;
         }
     </style>
+    <script src="/javascripts/jsencrypt.min.js"></script>
+
+    <script>
+        function prepareForm() {
+            var publicKey = $("#publicKey").val();
+            var password = $("#password").val();
+
+            var encrypter = new JSEncrypt();
+            encrypter.setPublicKey(publicKey);
+            var encryptedPassword = encrypter.encrypt(password);
+
+            $("#encryptedPassword").val(encryptedPassword);
+            return true;
+        }
+    </script>
 </head>
 <body>
 <%- include('partials/header', {header: 'Add user'}) %>
 <div class="container">
+    <textarea id="publicKey" rows="15" cols="65" style="display: none;">
+        <%- publicKey %>
+    </textarea>
     <div class="row">
         <div class="Absolute-Center is-Responsive">
             <div class="col-sm-12 col-md-10 col-md-offset-1">
-                <form method="POST" id="loginForm">
+                <form method="POST" id="addUserForm" onsubmit="prepareForm()">
                     <div class="form-group input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                         <input class="form-control" type="text" name='user' placeholder="Enter Username" required/>
                     </div>
                     <div class="form-group input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                        <input class="form-control" type="password" name='password' placeholder="Enter Password"
-                               required/>
+                        <input class="form-control" type="password" id="password" placeholder="Enter Password" required/>
                     </div>
                     <div class="form-group input-group">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-sunglasses"></i></span>
@@ -45,6 +62,7 @@
                         <span class="input-group-addon"><i class="glyphicon glyphicon-flag"></i> Admin</span>
                         <input class="form-control" type="checkbox" name='admin'>
                     </div>
+                    <input type="hidden" name="encryptedPassword" id="encryptedPassword" />
                     <div class="form-group">
                         <button type="submit" class="btn btn-def btn-block">Add</button>
                     </div>

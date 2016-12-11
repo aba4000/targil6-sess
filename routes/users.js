@@ -2,6 +2,8 @@ var express = require('express');
 var User = require('../models/user');
 var debug = require('debug')('sess:users');
 var router = express.Router();
+var crypto = require('crypto');
+var rsa = require('../rsa');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -10,7 +12,10 @@ router.get('/', function (req, res, next) {
         res.redirect('/login');
         return;
     }
-    User.find({}, function (err, users) {
+
+    var query = User.find();
+    query.select('-password');
+    query.exec(function (err, users) {
         if (err)
             debug("get users failure: " + err);
         else
@@ -29,7 +34,7 @@ router.get('/add', function (req, res, next) {
         res.redirect('/users');
         return;
     }
-    res.render('adduser', {title: 'Add user', admin: req.user.admin });
+    res.render('adduser', {title: 'Add user', admin: req.user.admin, publicKey: rsa.exportKey('public') });
 });
 
 router.post('/add', function (req, res, next) {
@@ -48,7 +53,7 @@ router.post('/add', function (req, res, next) {
         res.redirect('/users');
         return;
     }
-    if (req.body.password === undefined || req.body.password === null || req.body.password === "") {
+    if (req.body.encryptedPassword === undefined || req.body.encryptedPassword === null || req.body.encryptedPassword === "") {
         debug("Password cannot be empty!!!");
         res.redirect('/users');
         return;
@@ -70,10 +75,16 @@ router.post('/add', function (req, res, next) {
             res.redirect('/users');
             return;
         }
+
+        //decrypt password
+        var buffer = Buffer.from(req.body.encryptedPassword, "base64");
+        var decryptedPassword = rsa.decrypt(buffer);
+        var password = decryptedPassword.toString();
+
         User.create({
             name: req.body.name,
             username: req.body.user,
-            password: req.body.password,
+            password: password,
             admin: req.body.admin !== undefined
         }, function (err, user) {
             if (err)

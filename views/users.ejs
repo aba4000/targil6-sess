@@ -19,7 +19,6 @@
     <tr>
         <th>User</th>
         <% if (admin) { %>
-        <th>Password</th>
         <th class="text-center">Admin</th>
         <% } %>
         <th>Name</th>
@@ -34,7 +33,6 @@
     admin: admin,
     username: user.username,
     name: user.name,
-    password: user.password,
     useradmin: user.admin
     } ) %>
     <% }) %>
