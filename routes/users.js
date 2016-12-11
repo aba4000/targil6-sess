@@ -34,11 +34,84 @@ router.get('/add', function (req, res, next) {
         res.redirect('/users');
         return;
     }
-    res.render('adduser', {title: 'Add user', admin: req.user.admin, publicKey: rsa.exportKey('public') });
+    res.render('userDetails', {title: 'userDetails', admin: req.user.admin, publicKey: rsa.exportKey('public'), currentUserForEdit: null });
+});
+
+router.get('/editCurrent', function (req, res) {
+    debug('editCurrent');
+    if (!req.user) {
+        res.redirect('/login');
+        return;
+    }
+
+    res.render('userDetails', {title: 'Add user', admin: req.user.admin, publicKey: rsa.exportKey('public'), currentUserForEdit: req.user });
+});
+
+router.post('/editCurrent', function (req, res) {
+    debug('edit user');
+    if (!req.user) {
+        debug('not logged in');
+        res.redirect('/');
+        return;
+    }
+
+    if (!req.body.username) {
+        debug('Username cannot be empty!');
+        res.redirect('/');
+        return;
+    }
+
+    if (!req.body.encryptedPassword) {
+        debug("Password cannot be empty!!!");
+        res.redirect('/');
+        return;
+    }
+
+    //decrypt password
+    var buffer = Buffer.from(req.body.encryptedPassword, "base64");
+    var decryptedPassword = rsa.decrypt(buffer);
+    var password = decryptedPassword.toString();
+    if (!password) {
+        debug("Password cannot be empty!!!");
+        res.redirect('/');
+        return;
+    }
+
+    if (!req.body.name) {
+        debug("Name cannot be empty!!!");
+        res.redirect('/');
+        return;
+    }
+
+    User.findOne({username: req.body.username}, function (err, user) {
+        if (err) {
+            debug("get user for adding failure: " + err);
+            res.redirect('/');
+            return;
+        }
+        if (req.body.username !== req.user.username && user !== null) {
+            console.log('User to be update already exists!');
+            res.redirect('/');
+            return;
+        }
+
+        req.user.username = req.body.username;
+        req.user.password = password;
+        req.user.name = req.body.name;
+
+        req.user.save(function (err) {
+            if (err)
+                debug("Error creating a user: " + err);
+            else
+                debug('User updated: ' + req.user);
+
+            res.redirect('/');
+        });
+    });
 });
 
 router.post('/add', function (req, res, next) {
-    debug('requested');
+    debug('add user');
     if (!req.user) {
         res.redirect('/login');
         return;
@@ -48,7 +121,7 @@ router.post('/add', function (req, res, next) {
         res.redirect('/users');
         return;
     }
-    if (req.body.user === undefined || req.body.user === null || req.body.user === "") {
+    if (req.body.username === undefined || req.body.username === null || req.body.username === "") {
         debug("Username cannot be empty!!!");
         res.redirect('/users');
         return;
@@ -58,13 +131,24 @@ router.post('/add', function (req, res, next) {
         res.redirect('/users');
         return;
     }
+
+    //decrypt password
+    var buffer = Buffer.from(req.body.encryptedPassword, "base64");
+    var decryptedPassword = rsa.decrypt(buffer);
+    var password = decryptedPassword.toString();
+    if (!password) {
+        debug("Password cannot be empty!!!");
+        res.redirect('/users');
+        return;
+    }
+
     if (req.body.name === undefined || req.body.name === null || req.body.name === "") {
         debug("Name cannot be empty!!!");
         res.redirect('/users');
         return;
     }
 
-    User.findOne({username: req.body.user}, function (err, user) {
+    User.findOne({username: req.body.username}, function (err, user) {
         if (err) {
             debug("get user for adding failure: " + err);
             res.redirect('/users');
@@ -76,14 +160,9 @@ router.post('/add', function (req, res, next) {
             return;
         }
 
-        //decrypt password
-        var buffer = Buffer.from(req.body.encryptedPassword, "base64");
-        var decryptedPassword = rsa.decrypt(buffer);
-        var password = decryptedPassword.toString();
-
         User.create({
             name: req.body.name,
-            username: req.body.user,
+            username: req.body.username,
             password: password,
             admin: req.body.admin !== undefined
         }, function (err, user) {
