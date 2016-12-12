@@ -5,15 +5,15 @@ var debug = require('debug')('sess:index');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   debug('requested');
-  if (!req.user) {
-    res.redirect('/login');
-    return;
-  }
+  // if (!req.user) {
+  //   res.redirect('/login');
+  //   return;
+  // }
   if (req.session.count === undefined)
     req.session.count = 1;
   else
     req.session.count++;
-  res.render('index', { title: 'Express', count: req.session.count , userName: req.user.username });
+  res.render('index', { title: 'Express', count: req.session.count , user: req.user });
 });
 
 router.get('/logout', function(req, res, next) {

@@ -6,10 +6,18 @@
   <body>
     <%- include('partials/header', {header: title}) %>
     <p>Welcome to <%= title %></p>
-    <p>User: <%= userName %></p>
+    <p>User: <%= user ? user.username : 'Guest' %></p>
     <p>Times here: <%= count %></p>
-    <p><button onclick="location = '/logout'">Logout</button></p>
-    <p><button onclick="location = '/users'">Users</button></p>
-    <p><button onclick="location = '/users/editCurrent'">Edit your details</button></p>
+    <% if (user) { %>
+          <p><button onclick="location = '/logout'">Logout</button></p>
+    <%} else { %>
+          <p><button onclick="location = '/login'">Login</button></p>
+          <p><button onclick="location = '/users/add'">Register</button></p>
+    <%}%>
+
+    <% if (user) { %>
+          <p><button onclick="location = '/users'">Users</button></p>
+          <p><button onclick="location = '/users/editCurrent'">Edit your details</button></p>
+    <%} %>
   </body>
 </html>

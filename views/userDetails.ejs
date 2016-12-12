@@ -75,10 +75,18 @@
                                 <% } %>
                         />
                     </div>
-                    <% if (!currentUserForEdit) { %>
+                    <div class="form-group input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-sunglasses"></i></span>
+                        <input class="form-control" type="text" name='email' placeholder="Enter Email" required
+                                <% if (currentUserForEdit) { %>
+                               value="<%- currentUserForEdit.email %>"
+                                <% } %>
+                        />
+                    </div>
+                    <% if (admin && !currentUserForEdit) { %>
                         <div class="form-group input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-flag"></i> Admin</span>
-                            <input class="form-control" type="checkbox" name='admin'>
+                            <input class="form-control" type="checkbox" name='admin' />
                         </div>
                     <% } %>
                     <input type="hidden" name="encryptedPassword" id="encryptedPassword" />

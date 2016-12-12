@@ -43,10 +43,6 @@ passport.deserializeUser(function(id, done) {
     });
 });
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var login = require('./routes/login');
-
 var app = express();
 
 var MongoStore = connectMongo(session);
@@ -85,6 +81,10 @@ app.use(session({
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+
+var routes = require('./routes/index');
+var users = require('./routes/users');
+var login = require('./routes/login');
 
 app.use('/', routes);
 app.use('/users', users);

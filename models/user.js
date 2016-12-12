@@ -19,7 +19,9 @@ var User = db.model('User', new Schema({
         name: String,
         username: {type: String, required: true, unique: true},
         password: {type: String, required: true},
-        admin: Boolean
+        email: {type: String, required: true, unique: true},
+        admin: Boolean,
+        recoveryNumber: Number
     }));
 
 module.exports = User;

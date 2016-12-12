@@ -22,6 +22,7 @@
         <th class="text-center">Admin</th>
         <% } %>
         <th>Name</th>
+        <th>Email</th>
         <% if (admin) { %>
         <th class="text-center"></th>
         <% } %>
@@ -32,6 +33,7 @@
     <%- include('partials/user', {
     admin: admin,
     username: user.username,
+    email: user.email,
     name: user.name,
     useradmin: user.admin
     } ) %>
@@ -39,7 +41,11 @@
     </tbody>
 </table>
 <p>
-    <button onclick="location = '/users/add'">Add user</button>
+    <% if (admin) { %>
+        <button onclick="location = '/users/add'">Add user</button>
+    <%} else { %>
+        <div>Only admin user can add new users <br/> </div>
+    <%} %>
 </p>
 <p>
     <button onclick="location = '/logout'">Logout</button>
